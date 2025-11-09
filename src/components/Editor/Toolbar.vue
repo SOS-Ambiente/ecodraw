@@ -1,34 +1,67 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ToolOptions from './ToolOptions.vue'
+import IconBrush from '../Icons/IconBrush.vue'
+import IconEraser from '../Icons/IconEraser.vue'
+import IconSquare from '../Icons/IconSquare.vue'
+import IconCircle from '../Icons/IconCircle.vue'
+import IconTriangle from '../Icons/IconTriangle.vue'
+import IconText from '../Icons/IconText.vue'
+import IconImage from '../Icons/IconImage.vue'
+import IconHand from '../Icons/IconHand.vue'
+import IconUndo from '../Icons/IconUndo.vue'
+import IconRedo from '../Icons/IconRedo.vue'
+import IconZoomIn from '../Icons/IconZoomIn.vue'
+import IconZoomOut from '../Icons/IconZoomOut.vue'
+import IconSave from '../Icons/IconSave.vue'
+import IconGrid from '../Icons/IconGrid.vue'
+import IconDownload from '../Icons/IconDownload.vue'
 
 const props = defineProps({
   currentTool: String,
+  currentToolOption: String,
   canUndo: Boolean,
-  canRedo: Boolean
+  canRedo: Boolean,
+  showGrid: Boolean
 })
 
-const emit = defineEmits(['tool-change', 'undo', 'redo', 'save'])
+const emit = defineEmits(['tool-change', 'undo', 'redo', 'save', 'toggle-grid', 'export'])
 
 const hoveredTool = ref(null)
 const toolPosition = ref({ x: 0 })
+const optionsMenuTimeout = ref(null)
 
 const tools = [
-  { id: 'brush', icon: 'M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34a.996.996 0 0 0-1.41 0L9 12.25 11.75 15l8.96-8.96a.996.996 0 0 0 0-1.41z', group: 'draw', hasOptions: true },
-  { id: 'eraser', icon: 'M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.008 4.008 0 0 1-5.66 0L2.81 17c-.78-.79-.78-2.05 0-2.84l10.6-10.6c.79-.78 2.05-.78 2.83 0M4.22 15.58l3.54 3.53c.78.79 2.04.79 2.83 0l3.53-3.53l-4.95-4.95l-4.95 4.95z', group: 'draw', hasOptions: true },
-  { id: 'square', icon: 'M3 3h18v18H3z', group: 'shapes', hasOptions: true },
-  { id: 'circle', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z', group: 'shapes', hasOptions: true },
-  { id: 'triangle', icon: 'M12 2L1 21h22z', group: 'shapes', hasOptions: true },
-  { id: 'text', icon: 'M5 4v3h5.5v12h3V7H19V4z', group: 'tools', hasOptions: true },
-  { id: 'image', icon: 'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z', group: 'tools', hasOptions: true },
-  { id: 'undo', icon: 'M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z', group: 'actions', hasOptions: false },
-  { id: 'redo', icon: 'M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z', group: 'actions', hasOptions: false },
-  { id: 'zoom-in', icon: 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm.5-7H9v2H7v1h2v2h1v-2h2V9h-2z', group: 'actions', hasOptions: false },
-  { id: 'zoom-out', icon: 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z', group: 'actions', hasOptions: false },
-  { id: 'save', icon: 'M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z', group: 'actions', hasOptions: false }
+  { id: 'brush', component: IconBrush, group: 'draw', hasOptions: true, tooltip: 'Brush (B)' },
+  { id: 'eraser', component: IconEraser, group: 'draw', hasOptions: true, tooltip: 'Eraser (E)' },
+  { id: 'square', component: IconSquare, group: 'shapes', hasOptions: true, tooltip: 'Rectangle (R)' },
+  { id: 'circle', component: IconCircle, group: 'shapes', hasOptions: true, tooltip: 'Circle (C)' },
+  { id: 'triangle', component: IconTriangle, group: 'shapes', hasOptions: true, tooltip: 'Triangle' },
+  { id: 'text', component: IconText, group: 'tools', hasOptions: true, tooltip: 'Text (T)' },
+  { id: 'image', component: IconImage, group: 'tools', hasOptions: true, tooltip: 'Image (I)' },
+  { id: 'move', component: IconHand, group: 'tools', hasOptions: false, tooltip: 'Move (M)' },
+  { id: 'divider', type: 'divider' },
+  { id: 'undo', component: IconUndo, group: 'actions', hasOptions: false, tooltip: 'Undo (Ctrl+Z)' },
+  { id: 'redo', component: IconRedo, group: 'actions', hasOptions: false, tooltip: 'Redo (Ctrl+Y)' },
+  { id: 'divider2', type: 'divider' },
+  { id: 'grid', component: IconGrid, group: 'actions', hasOptions: false, tooltip: 'Toggle Grid (G)' },
+  { id: 'zoom-in', component: IconZoomIn, group: 'actions', hasOptions: false, tooltip: 'Zoom In (Ctrl++)' },
+  { id: 'zoom-out', component: IconZoomOut, group: 'actions', hasOptions: false, tooltip: 'Zoom Out (Ctrl+-)' },
+  { id: 'divider3', type: 'divider' },
+  { id: 'export', component: IconDownload, group: 'actions', hasOptions: false, tooltip: 'Export (Ctrl+E)' },
+  { id: 'save', component: IconSave, group: 'actions', hasOptions: false, tooltip: 'Save (Ctrl+S)' }
 ]
 
-const handleToolClick = (tool) => {
+// Get the base tool name (without option suffix)
+const baseTool = computed(() => {
+  if (!props.currentTool) return null
+  return props.currentTool.split('-')[0]
+})
+
+const handleToolClick = (tool, event) => {
+  if (tool.type === 'divider') return
+  
+  // Handle action buttons
   if (tool.id === 'undo') {
     emit('undo')
     return
@@ -38,6 +71,12 @@ const handleToolClick = (tool) => {
   } else if (tool.id === 'save') {
     emit('save')
     return
+  } else if (tool.id === 'export') {
+    emit('export')
+    return
+  } else if (tool.id === 'grid') {
+    emit('toggle-grid')
+    return
   } else if (tool.id === 'zoom-in') {
     emit('tool-change', 'zoom-in')
     return
@@ -46,72 +85,120 @@ const handleToolClick = (tool) => {
     return
   }
   
-  // For tools with options, don't change tool on click, wait for option selection
-  if (!tool.hasOptions) {
+  // For tools with options, activate tool with default option if not already active
+  if (tool.hasOptions) {
+    if (baseTool.value !== tool.id) {
+      // Activate tool with default option
+      const defaultOption = getDefaultOption(tool.id)
+      emit('tool-change', tool.id, defaultOption)
+    }
+    // Show options menu on click
+    const rect = event.currentTarget.getBoundingClientRect()
+    toolPosition.value = { x: rect.left + rect.width / 2 }
+    hoveredTool.value = tool.id
+  } else {
     emit('tool-change', tool.id)
   }
 }
 
-const handleToolHover = (tool, event) => {
-  if (tool.hasOptions) {
-    const rect = event.currentTarget.getBoundingClientRect()
-    toolPosition.value = { x: rect.left + rect.width / 2 }
-    hoveredTool.value = tool.id
+const getDefaultOption = (toolId) => {
+  const defaults = {
+    brush: 'pencil',
+    eraser: 'soft',
+    square: 'rect',
+    circle: 'circle',
+    triangle: 'triangle',
+    text: 'normal',
+    image: 'upload'
   }
+  return defaults[toolId] || null
+}
+
+const handleToolHover = (tool, event) => {
+  // Only show options for tools that have them
+  if (!tool.hasOptions || tool.type === 'divider') return
+  
+  clearTimeout(optionsMenuTimeout.value)
+  const rect = event.currentTarget.getBoundingClientRect()
+  toolPosition.value = { x: rect.left + rect.width / 2 }
+  hoveredTool.value = tool.id
 }
 
 const handleToolLeave = () => {
-  setTimeout(() => {
+  clearTimeout(optionsMenuTimeout.value)
+  optionsMenuTimeout.value = setTimeout(() => {
     hoveredTool.value = null
-  }, 300)
+  }, 200)
+}
+
+const handleOptionsMouseEnter = () => {
+  clearTimeout(optionsMenuTimeout.value)
+}
+
+const handleOptionsMouseLeave = () => {
+  handleToolLeave()
 }
 
 const handleOptionSelect = (data) => {
   emit('tool-change', data.tool, data.option)
   hoveredTool.value = null
+  clearTimeout(optionsMenuTimeout.value)
 }
 </script>
 
 <template>
   <div class="toolbar">
     <div class="toolbar-content">
-      <button
-        v-for="tool in tools"
-        :key="tool.id"
-        :class="[
-          'tool-btn', 
-          { 
-            active: currentTool === tool.id,
-            disabled: (tool.id === 'undo' && !canUndo) || (tool.id === 'redo' && !canRedo)
-          }
-        ]"
-        @click="handleToolClick(tool)"
-        @mouseenter="handleToolHover(tool, $event)"
-        @mouseleave="handleToolLeave"
-        :disabled="(tool.id === 'undo' && !canUndo) || (tool.id === 'redo' && !canRedo)"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path :d="tool.icon" />
-        </svg>
-        <div v-if="currentTool === tool.id" class="tool-underline"></div>
-        <div v-if="tool.hasOptions" class="options-indicator">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 10l5 5 5-5z"/>
-          </svg>
-        </div>
-      </button>
+      <template v-for="tool in tools" :key="tool.id">
+        <div v-if="tool.type === 'divider'" class="toolbar-divider"></div>
+        <button
+          v-else
+          :class="[
+            'tool-btn', 
+            { 
+              active: baseTool === tool.id || (tool.id === 'grid' && showGrid),
+              disabled: (tool.id === 'undo' && !canUndo) || (tool.id === 'redo' && !canRedo),
+              'has-options': tool.hasOptions
+            }
+          ]"
+          @click="handleToolClick(tool, $event)"
+          @mouseenter="handleToolHover(tool, $event)"
+          @mouseleave="handleToolLeave"
+          :disabled="(tool.id === 'undo' && !canUndo) || (tool.id === 'redo' && !canRedo)"
+          :title="tool.tooltip"
+          :aria-label="tool.tooltip"
+          :aria-pressed="baseTool === tool.id"
+        >
+          <component :is="tool.component" />
+          <div v-if="baseTool === tool.id || (tool.id === 'grid' && showGrid)" class="tool-underline"></div>
+          <div v-if="tool.hasOptions" class="options-indicator">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </div>
+          <!-- Show current option badge -->
+          <div v-if="tool.hasOptions && baseTool === tool.id && currentToolOption" class="option-badge">
+            {{ currentToolOption.charAt(0).toUpperCase() }}
+          </div>
+        </button>
+      </template>
     </div>
     
+  </div>
+  
+  <!-- Render ToolOptions outside toolbar using Teleport -->
+  <Teleport to="body">
     <ToolOptions
       v-if="hoveredTool"
       :tool="hoveredTool"
+      :current-option="currentToolOption"
       :position="toolPosition"
       @option-select="handleOptionSelect"
       @close="hoveredTool = null"
-      @mouseenter="() => {}"
-      @mouseleave="handleToolLeave"
+      @mouseenter="handleOptionsMouseEnter"
+      @mouseleave="handleOptionsMouseLeave"
     />
-  </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -146,25 +233,38 @@ const handleOptionSelect = (data) => {
   transition: all 0.2s ease;
   border-radius: 12px;
   flex-direction: column;
+  outline: none;
 }
 
-.tool-btn svg {
+.tool-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.tool-btn :deep(svg) {
   width: 28px;
   height: 28px;
   color: rgba(255, 255, 255, 0.7);
   transition: all 0.2s ease;
 }
 
-.tool-btn:hover svg {
+.tool-btn:hover :deep(svg) {
   color: rgba(255, 255, 255, 1);
   transform: scale(1.1);
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 8px;
 }
 
 .tool-btn:hover {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.tool-btn.active svg {
+.tool-btn.active :deep(svg) {
   color: var(--primary-color);
 }
 
@@ -176,22 +276,60 @@ const handleOptionSelect = (data) => {
 
 .options-indicator {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 16px;
-  height: 16px;
-  opacity: 0;
+  bottom: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.4;
   transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 
-.tool-btn:hover .options-indicator {
+.tool-btn.has-options:hover .options-indicator {
+  opacity: 0.8;
+}
+
+.tool-btn.active .options-indicator {
   opacity: 0.6;
 }
 
 .options-indicator svg {
   width: 100%;
   height: 100%;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.option-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  animation: badgePop 0.3s ease;
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .tool-underline {

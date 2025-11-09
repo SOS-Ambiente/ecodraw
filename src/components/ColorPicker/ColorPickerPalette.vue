@@ -118,10 +118,10 @@ const opacityGradient = computed(() => {
 .knob {
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, #FF4015 0%, #FF6B47 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, rgba(var(--primary-rgb), 0.8) 100%);
   border-radius: 50%;
   border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(255, 64, 21, 0.4);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.4);
   cursor: pointer;
   transition: all 0.2s ease;
   position: absolute;
@@ -132,7 +132,7 @@ const opacityGradient = computed(() => {
 
 .knob:hover {
   transform: translateY(-50%) scale(1.2);
-  box-shadow: 0 4px 12px rgba(255, 64, 21, 0.6);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.6);
 }
 
 .percentage {

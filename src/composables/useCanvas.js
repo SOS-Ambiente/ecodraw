@@ -1,38 +1,47 @@
 import { ref, computed } from 'vue'
+import { useZoom } from './useZoom'
 
+// DEPRECATED: This composable is deprecated in favor of useZoom
+// Kept for backward compatibility only
 export function useCanvas() {
-  const zoom = ref(1)
-  const panX = ref(0)
-  const panY = ref(0)
+  const {
+    stageScale,
+    stagePosition,
+    zoomIn: centralizedZoomIn,
+    zoomOut: centralizedZoomOut,
+    resetZoom: centralizedResetZoom
+  } = useZoom()
 
-  const zoomIn = () => {
-    zoom.value = Math.min(zoom.value * 1.2, 5)
-  }
+  // Legacy compatibility layer
+  const zoom = computed({
+    get: () => stageScale.value,
+    set: (val) => { stageScale.value = val }
+  })
 
-  const zoomOut = () => {
-    zoom.value = Math.max(zoom.value / 1.2, 0.1)
-  }
+  const panX = computed({
+    get: () => stagePosition.value.x,
+    set: (val) => { stagePosition.value.x = val }
+  })
 
-  const resetZoom = () => {
-    zoom.value = 1
-    panX.value = 0
-    panY.value = 0
-  }
+  const panY = computed({
+    get: () => stagePosition.value.y,
+    set: (val) => { stagePosition.value.y = val }
+  })
 
   const stageTransform = computed(() => ({
-    scaleX: zoom.value,
-    scaleY: zoom.value,
-    x: panX.value,
-    y: panY.value
+    scaleX: stageScale.value,
+    scaleY: stageScale.value,
+    x: stagePosition.value.x,
+    y: stagePosition.value.y
   }))
 
   return {
     zoom,
     panX,
     panY,
-    zoomIn,
-    zoomOut,
-    resetZoom,
+    zoomIn: centralizedZoomIn,
+    zoomOut: centralizedZoomOut,
+    resetZoom: centralizedResetZoom,
     stageTransform
   }
 }

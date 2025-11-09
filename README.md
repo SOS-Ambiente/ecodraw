@@ -1,6 +1,6 @@
 # 🌿 EcoDraw - Agroecological Plant Planner
 
-A modern Vue 3 drawing application with Konva canvas integration, designed for botanical illustration and agroecological garden planning.
+A modern, high-performance Vue 3 drawing application with Konva canvas integration, designed for botanical illustration and agroecological garden planning.
 
 ## ✨ Features
 
@@ -10,53 +10,97 @@ A modern Vue 3 drawing application with Konva canvas integration, designed for b
   - Hover-activated controls for clean workspace
   - Real-time visual feedback with gradient sliders
   - Smooth anti-aliased rendering
+  - Multiple brush types (Pencil, Marker, Spray, Calligraphy)
 - **Eraser Tool**: Precision erasing with destination-out compositing
-- **Shape Tools**: Square, circle, and triangle with live preview
-- **Text & Image**: Insert annotations and reference images
+- **Shape Tools**: Square, circle, and triangle with live preview and fill options
+- **Text & Image**: Insert annotations and reference images with drag support
 
 ### 🎯 Modern UI/UX
-- **Grid Canvas**: Professional grid overlay (40px) for precise planning
+- **Grid Canvas**: Professional 2m² proportional grid (1m = 50px) for precise planning
 - **Centered Toolbar**: Vertically aligned tools with active state indicators
 - **Hover-Based Controls**: Brush settings appear only when needed
 - **Smooth Animations**: Slide-in transitions and pulse effects
 - **Glassmorphism Design**: Modern backdrop blur and transparency effects
+- **Color Wheel**: Advanced HSL color picker with real-time preview
+- **Theme System**: Dynamic color theming with CSS variables
 
 ### 🌱 Botanical Library
-- Browse 24+ botanical elements
-- 7 organized categories (Vegetables, Leaves, Fruits, Roots, Trees, Flowers, Herbs)
+- Browse 32+ botanical elements
+- 8 organized categories (All, Vegetables, Leaves, Fruits, Roots, Trees, Flowers, Herbs)
 - Responsive grid layout with hover effects
 - Quick search and filtering
+- Drag-and-drop support
 
 ### ⚡ Advanced Features
-- **History Management**: Full undo/redo with state preservation
-- **Zoom Controls**: 0.1x - 5x zoom with pan navigation
+- **History Management**: Full undo/redo with state preservation (50 states)
+- **Zoom Controls**: 0.1x - 5x zoom with mouse wheel and pan navigation
 - **Touch Support**: Full mobile and tablet compatibility
-- **Performance Optimized**: Efficient rendering with layer separation
+- **Performance Optimized**: 
+  - Efficient rendering with layer separation
+  - FPS monitoring and performance warnings
+  - Memory usage tracking
+  - Code splitting and lazy loading
 - **Responsive Design**: Adapts to any screen size
+- **PWA Support**: Install as desktop/mobile app with offline capability
+- **Auto-Save**: Preferences saved to localStorage
+- **Keyboard Shortcuts**: Full keyboard navigation support
+- **Error Boundary**: Graceful error handling with recovery options
+- **Accessibility**: 
+  - High contrast mode
+  - Reduced motion support
+  - Large text option
+  - Screen reader optimization
+  - ARIA labels and semantic HTML
 
-## Tech Stack
+## 🚀 Tech Stack
 
-- **Vue 3** with Composition API (`<script setup>`)
-- **Konva.js** for canvas manipulation via `vue-konva`
-- **Vite** for fast development and building
+- **Vue 3.5+** with Composition API (`<script setup>`)
+- **Konva.js 9.3+** for canvas manipulation via `vue-konva`
+- **Vite 5.4+** for fast development and optimized building
+- **PWA** with service worker and offline support
 
-## Installation
+## 📦 Installation
 
 ```bash
+# Install dependencies
+pnpm install
+
+# Or with npm
 npm install
+
+# Or with yarn
+yarn install
 ```
 
-## Development
+## 🛠️ Development
 
 ```bash
-npm run dev
+# Start development server (http://localhost:3000)
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
 ```
 
-## Build
+## 🎮 Keyboard Shortcuts
 
-```bash
-npm run build
-```
+| Shortcut | Action |
+|----------|--------|
+| `B` | Select Brush tool |
+| `E` | Select Eraser tool |
+| `T` | Select Text tool |
+| `G` | Toggle Grid |
+| `Ctrl/Cmd + Z` | Undo |
+| `Ctrl/Cmd + Shift + Z` or `Ctrl/Cmd + Y` | Redo |
+| `Ctrl/Cmd + S` | Save |
+| `Ctrl/Cmd + +` | Zoom In |
+| `Ctrl/Cmd + -` | Zoom Out |
+| `Ctrl/Cmd + 0` | Reset Zoom |
+| `Ctrl/Cmd + Shift + A` | Accessibility Menu |
+| `?` | Show Shortcuts |
 
 ## Project Structure
 
@@ -96,15 +140,35 @@ Modern dark theme with professional aesthetics:
 - **Spacing**: Consistent 8px grid system
 - **Borders**: Subtle `rgba(255, 255, 255, 0.05)` for depth
 
-## 🚀 Key Improvements
+## 🚀 Version 2.0 Improvements
 
-1. **Grid Background**: Professional 40px grid on Konva canvas for precise drawing
-2. **Toolbar Redesign**: Centered, compact toolbar with animated underlines
-3. **Smart Controls**: Brush settings only appear on hover to maximize canvas space
-4. **Modern Sliders**: Gradient-styled range inputs with custom thumbs
-5. **Enhanced Sidebar**: Glassmorphic cards with hover animations
-6. **Responsive Library**: Adaptive grid layout with smooth transitions
-7. **Performance**: Separated grid and drawing layers for optimal rendering
+### Performance & Optimization
+1. **FPS Monitoring**: Real-time performance tracking with visual warnings
+2. **Memory Management**: Heap size monitoring and optimization
+3. **Code Splitting**: Vendor chunks for Vue and Konva
+4. **Lazy Loading**: Components loaded on demand
+5. **Build Optimization**: Terser minification with console removal
+
+### User Experience
+6. **Error Boundary**: Graceful error handling with recovery UI
+7. **Auto-Save**: Preferences persist across sessions
+8. **Keyboard Composable**: Centralized keyboard shortcut management
+9. **LocalStorage Hook**: Reactive localStorage with auto-sync
+10. **PWA Support**: Install as app with offline capability
+
+### Accessibility
+11. **High Contrast Mode**: Enhanced visibility for low vision users
+12. **Reduced Motion**: Respects user motion preferences
+13. **Large Text Mode**: Scalable text throughout the app
+14. **Screen Reader Support**: ARIA labels and semantic HTML
+15. **Focus Management**: Clear focus indicators
+
+### Technical
+16. **Modern Grid System**: 2m² proportional grid (1m = 50px)
+17. **Composable Architecture**: Reusable logic with Vue composables
+18. **Theme System**: Dynamic CSS variables for theming
+19. **Type Safety**: Better prop validation and error handling
+20. **Production Ready**: Optimized build with PWA manifest
 
 ## License
 

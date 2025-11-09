@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const props = defineProps({
   selectedColor: {
@@ -153,6 +153,59 @@ const handleMouseUp = () => {
   isSelecting.value = false
 }
 
+// Touch support
+const handleTouchStart = (e) => {
+  e.preventDefault()
+  isSelecting.value = true
+  const touch = e.touches[0]
+  const rect = canvas.value.getBoundingClientRect()
+  const x = touch.clientX - rect.left
+  const y = touch.clientY - rect.top
+  
+  const dx = x - centerX
+  const dy = y - centerY
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  
+  if (distance <= radius && distance >= 30) {
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90
+    if (angle < 0) angle += 360
+    
+    selectedHue.value = Math.round(angle)
+    selectedSaturation.value = Math.round(((distance - 30) / (radius - 30)) * 100)
+    
+    drawColorWheel()
+    emit('color-change', currentColor.value)
+  }
+}
+
+const handleTouchMove = (e) => {
+  if (!isSelecting.value) return
+  e.preventDefault()
+  const touch = e.touches[0]
+  const rect = canvas.value.getBoundingClientRect()
+  const x = touch.clientX - rect.left
+  const y = touch.clientY - rect.top
+  
+  const dx = x - centerX
+  const dy = y - centerY
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  
+  if (distance <= radius && distance >= 30) {
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90
+    if (angle < 0) angle += 360
+    
+    selectedHue.value = Math.round(angle)
+    selectedSaturation.value = Math.round(((distance - 30) / (radius - 30)) * 100)
+    
+    drawColorWheel()
+    emit('color-change', currentColor.value)
+  }
+}
+
+const handleTouchEnd = () => {
+  isSelecting.value = false
+}
+
 onMounted(() => {
   // Initialize from selected color
   const hsl = hexToHsl(props.selectedColor)
@@ -164,6 +217,15 @@ onMounted(() => {
   
   window.addEventListener('mousemove', handleMouseMove)
   window.addEventListener('mouseup', handleMouseUp)
+  window.addEventListener('touchmove', handleTouchMove, { passive: false })
+  window.addEventListener('touchend', handleTouchEnd)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleMouseMove)
+  window.removeEventListener('mouseup', handleMouseUp)
+  window.removeEventListener('touchmove', handleTouchMove)
+  window.removeEventListener('touchend', handleTouchEnd)
 })
 </script>
 
@@ -186,6 +248,9 @@ onMounted(() => {
           :height="wheelSize"
           @click="handleCanvasClick"
           @mousedown="handleMouseDown"
+          @touchstart="handleTouchStart"
+          @touchmove="handleTouchMove"
+          @touchend="handleTouchEnd"
           class="color-canvas"
         />
         
@@ -219,10 +284,11 @@ onMounted(() => {
 <style scoped>
 .color-wheel-container {
   position: fixed;
-  left: 180px;
-  top: 120px;
+  left: 300px;
+  bottom: 120px;
   z-index: 200;
   animation: slideIn 0.3s ease;
+  touch-action: none;
 }
 
 @keyframes slideIn {
@@ -294,6 +360,8 @@ onMounted(() => {
   cursor: crosshair;
   border-radius: 50%;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  touch-action: none;
+  user-select: none;
 }
 
 .color-info {

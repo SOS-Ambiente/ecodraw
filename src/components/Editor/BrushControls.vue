@@ -141,7 +141,7 @@ const brushPreviewStyle = computed(() => {
 <style scoped>
 .brush-controls {
   position: fixed;
-  left: 180px;
+  left: 300px;
   top: 100px;
   width: 380px;
   background: rgba(20, 20, 20, 0.98);
@@ -158,7 +158,7 @@ const brushPreviewStyle = computed(() => {
 
 .hover-trigger {
   position: fixed;
-  left: 162px;
+  left: 280px;
   top: 80px;
   width: 60px;
   height: 200px;
@@ -223,34 +223,34 @@ const brushPreviewStyle = computed(() => {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, #FF4015 0%, #FF6B47 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, rgba(var(--primary-rgb), 0.8) 100%);
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(255, 64, 21, 0.4);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.4);
   transition: all 0.2s ease;
   margin-top: -6px;
 }
 
 .slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(255, 64, 21, 0.6);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.6);
 }
 
 .slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, #FF4015 0%, #FF6B47 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, rgba(var(--primary-rgb), 0.8) 100%);
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(255, 64, 21, 0.4);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.4);
   transition: all 0.2s ease;
 }
 
 .slider::-moz-range-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 4px 12px rgba(255, 64, 21, 0.6);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.6);
 }
 
 .value-display {
