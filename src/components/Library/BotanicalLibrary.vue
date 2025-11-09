@@ -433,9 +433,15 @@ const handleKeydown = (event) => {
             <span class="stat-value favorite">{{ stats.favorites }}</span>
           </div>
           <div class="stat api-status">
-            <span class="stat-label">DB:</span>
+            <span class="stat-label">{{ dataSource === 'api' ? 'API' : 'DB' }}:</span>
             <span :class="['stat-value', 'status-indicator', { 'connected': isInitialized, 'disconnected': !isInitialized }]">
-              {{ isInitialized ? '🟢 Carregado' : (dbLoading ? '🟡 Carregando...' : '🔴 Erro') }}
+              {{ isInitialized ? (dataSource === 'api' ? '🟢 API (Dev)' : '🟢 SQLite') : (dataLoading ? '🟡 Carregando...' : '🔴 Erro') }}
+            </span>
+          </div>
+          <div v-if="isLocalhost && dataSource === 'sqlite'" class="stat hint-status">
+            <span class="stat-label">💡</span>
+            <span class="stat-value hint-text">
+              Start Flask API for faster dev
             </span>
           </div>
         </div>
@@ -540,14 +546,14 @@ const handleKeydown = (event) => {
         <!-- ITEMS GRID -->
         <div class="items-container">
           <!-- Loading State -->
-          <div v-if="isLoading || dbLoading" class="loading-state">
+          <div v-if="isLoading || dataLoading" class="loading-state">
             <div class="spinner"></div>
-            <p>{{ dbLoading ? 'Inicializando banco de dados...' : 'Carregando plantas...' }}</p>
+            <p>{{ dataLoading ? 'Inicializando...' : 'Carregando plantas...' }}</p>
           </div>
 
           <!-- Error State -->
-          <div v-else-if="loadError || dbError" class="error-state">
-            <p>⚠️ Erro: {{ loadError || dbError }}</p>
+          <div v-else-if="loadError || dataError" class="error-state">
+            <p>⚠️ Erro: {{ loadError || dataError }}</p>
             <button @click="loadPlants" class="retry-btn">Tentar Novamente</button>
           </div>
 
@@ -1100,6 +1106,17 @@ const handleKeydown = (event) => {
 @keyframes pulse-error {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
+}
+
+.hint-status {
+  opacity: 0.7;
+}
+
+.hint-status .hint-text {
+  font-size: 10px;
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.3);
 }
 
 /* ============================================================================
